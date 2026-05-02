@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -307,7 +308,14 @@ static Ref<Expr> json_to_expr(const json& j) {
       const std::string& op_kind = op_j.at("kind").get<std::string>();
       if (op_kind == "Op") {
         std::string name = op_j.at("name").get<std::string>();
-        op_node = OpRegistry::has(name) ? OpRegistry::get(name) : nullptr;
+        if (OpRegistry::has(name)) {
+          op_node = OpRegistry::get(name);
+        } else {
+          std::cerr << "[from_json] WARNING: Op '" << name
+                    << "' not found in OpRegistry — op will be null. "
+                    << "Make sure op_registry_init.cpp is linked.\n";
+          op_node = nullptr;
+        }
       } else {
         op_node = json_to_expr(op_j);
       }

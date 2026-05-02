@@ -1,4 +1,9 @@
 __pycache__/
-model_ir.json
-code/
 .vscode/
+build/
+code/
+
+model_ir_format.json
+model_ir.json
+compile_commands.json
+debug.json
