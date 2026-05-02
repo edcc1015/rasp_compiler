@@ -133,7 +133,7 @@ static json expr_to_json(const Ref<Expr>& e) {
     case IRNodeType::kVar: {
       auto* v = static_cast<Var*>(e.get());
       json j = {{"kind", "Var"}, {"name", v->name}};
-      if (v->type_annotation) j["type_annotation"] = type_to_json(v->type_annotation);
+      if (v->type_annotation) j["type"] = type_to_json(v->type_annotation);
       return j;
     }
 
@@ -240,6 +240,9 @@ static Attrs json_to_attrs(const json& j) {
   for (auto& [key, val] : j.items()) {
     if (val.is_string()) {
       attrs.values[key] = val.get<std::string>();
+    } else if (val.is_boolean()) {
+      /* JSON bool → int64_t (0/1) to fit into AttrValue variant. */
+      attrs.values[key] = val.get<bool>() ? int64_t(1) : int64_t(0);
     } else if (val.is_number_integer()) {
       attrs.values[key] = val.get<int64_t>();
     } else if (val.is_number_float()) {
@@ -282,8 +285,8 @@ static Ref<Expr> json_to_expr(const json& j) {
 
   if (kind == "Var") {
     Ref<IRNode> ta;
-    if (j.contains("type_annotation") && !j["type_annotation"].is_null())
-      ta = json_to_type(j["type_annotation"]);
+    if (j.contains("type") && !j["type"].is_null())
+      ta = json_to_type(j["type"]);
     return Var::make(j.at("name").get<std::string>(), ta);
   }
 

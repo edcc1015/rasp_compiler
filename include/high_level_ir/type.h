@@ -16,6 +16,7 @@ namespace rasp {
 enum class DataType {
   kFloat32,
   kFloat16,
+  kFloat64,
   kInt32,
   kInt64,
   kInt8,
@@ -28,6 +29,7 @@ inline std::string dtype_to_string(DataType dt) {
   switch (dt) {
     case DataType::kFloat32: return "float32";
     case DataType::kFloat16: return "float16";
+    case DataType::kFloat64: return "float64";
     case DataType::kInt32:   return "int32";
     case DataType::kInt64:   return "int64";
     case DataType::kInt8:    return "int8";
@@ -41,6 +43,7 @@ inline std::string dtype_to_string(DataType dt) {
 inline DataType dtype_from_string(const std::string& s) {
   if (s == "float32") return DataType::kFloat32;
   if (s == "float16") return DataType::kFloat16;
+  if (s == "float64") return DataType::kFloat64;
   if (s == "int32")   return DataType::kInt32;
   if (s == "int64")   return DataType::kInt64;
   if (s == "int8")    return DataType::kInt8;
@@ -54,6 +57,7 @@ inline int dtype_bytes(DataType dt) {
   switch (dt) {
     case DataType::kFloat32: return 4;
     case DataType::kFloat16: return 2;
+    case DataType::kFloat64: return 8;
     case DataType::kInt32:   return 4;
     case DataType::kInt64:   return 8;
     case DataType::kInt8:    return 1;

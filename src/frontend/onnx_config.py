@@ -1,3 +1,5 @@
+import logging
+import math
 import onnx
 from onnx import numpy_helper
 from typing import Dict
@@ -129,10 +131,18 @@ def _handle_reshape(inputs: list, attrs: dict) -> dict:
 def _handle_clip(inputs: list, attrs: dict) -> dict:
     # opset < 11：min/max in attrs；
     # opset >= 11：min/max in inputs[1], inputs[2]
-    ir_attrs = {
-        "a_min": attrs.get("min", float("-inf")),
-        "a_max": attrs.get("max", float("inf")),
-    }
+    a_min = attrs.get("min", float("-inf"))
+    a_max = attrs.get("max", float("inf"))
+    if math.isinf(a_min) or math.isinf(a_max):
+        msg = (
+            f"Clip op has infinite bound(s): a_min={a_min}, a_max={a_max}. "
+            "For opset>=11, min/max must come from scalar Constant inputs "
+            "(inputs[1]/inputs[2]), not from attrs. "
+            "JSON cannot represent Infinity — serialization would produce invalid output."
+        )
+        logging.error(msg)
+        raise ValueError(msg)
+    ir_attrs = {"a_min": a_min, "a_max": a_max}
     return _make_call("nn.clip", inputs, ir_attrs)
 
 
