@@ -4,37 +4,37 @@
 #include <string>
 
 #include "high_level_ir/hl_ir.h"
+#include "utils/utils.h"
 
 int main(int argc, char* argv[]) {
+  /* parser arg */
   if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <ir_module.json>\n";
-    return 1;
+    LOG_E("Usage: rasp_compiler <ir_module.json>");
+    return rasp::kRpcError;
   }
-
   std::string json_path = argv[1];
   std::ifstream input(json_path);
   if (!input) {
-    std::cerr << "Failed to open JSON file: " << json_path << "\n";
-    return 1;
+    LOG_E(("Failed to open JSON file: " + json_path).c_str());
+    return rasp::kRpcError;
   }
+  std::ostringstream input_json_str;
+  input_json_str << input.rdbuf();
 
-  std::ostringstream buffer;
-  buffer << input.rdbuf();
 
-  auto mod = rasp::IRModule::from_json(buffer.str());
+  /* main logic */
+  auto mod = rasp::IRModule::from_json(input_json_str.str());
   auto fn  = mod->get_function("main");
+  std::string output_json_str = mod->to_json();
 
-  std::string json_str = mod->to_json();
-  (void)fn;
-
+  /* dump debug.json from IRModule */
   std::ofstream output("debug.json");
   if (!output) {
-    std::cerr << "Failed to create output JSON file: debug.json\n";
-    return 1;
+    LOG_E("Failed to create output JSON file: debug.json");
+    return rasp::kRpcError;
   }
-
-  output << json_str;
+  output << output_json_str;
   output << '\n';
 
-  return 0;
+  return rasp::kRpcSuccess;
 }
