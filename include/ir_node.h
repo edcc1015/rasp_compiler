@@ -25,6 +25,36 @@ enum class IRNodeType {
   kIRModule,
   /* Op */
   kOp,
+  /* LLIR PrimExpr nodes */
+  kLLVar,
+  kIntImm,
+  kFloatImm,
+  kBufferLoad,
+  kAdd,
+  kSub,
+  kMul,
+  kDiv,
+  kMod,
+  kFloorDiv,
+  kFloorMod,
+  kMin,
+  kMax,
+  kSelect,
+  kCast,
+  kRamp,
+  kBroadcast,
+  kLLCall,
+  /* LLIR Stmt nodes */
+  kSeqStmt,
+  kFor,
+  kIfThenElse,
+  kAllocate,
+  kBufferStore,
+  kEvaluate,
+  /* LLIR Buffer / PrimFunc / Module */
+  kBuffer,
+  kPrimFunc,
+  kLLIRModule,
 };
 
 /* ──────────────────────────────────────────────────────────────────────────

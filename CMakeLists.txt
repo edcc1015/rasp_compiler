@@ -44,6 +44,8 @@ add_library(rasp_ir OBJECT
   src/high_level_ir/op.cpp
   src/high_level_ir/op_registry_init.cpp
   src/high_level_ir/ir_module.cpp
+  src/low_level_ir/buffer.cpp
+  src/low_level_ir/stmt.cpp
 )
 target_link_libraries(rasp_ir
   PUBLIC  rasp_includes
