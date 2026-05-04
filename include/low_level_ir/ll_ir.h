@@ -7,3 +7,5 @@
 #include "low_level_ir/stmt.h"
 #include "low_level_ir/prim_func.h"
 #include "low_level_ir/ll_ir_module.h"
+#include "low_level_ir/ll_expr_visitor.h"
+#include "low_level_ir/ll_expr_mutator.h"
