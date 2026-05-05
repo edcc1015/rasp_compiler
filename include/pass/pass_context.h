@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_PASS_PASS_CONTEXT_H_
+#define RASP_INCLUDE_PASS_PASS_CONTEXT_H_
+
 #pragma once
 
 #include <sstream>
@@ -47,3 +50,5 @@ inline std::string PassContext::get_config<std::string>(
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_PASS_PASS_CONTEXT_H_ */

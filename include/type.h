@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_TYPE_H_
+#define RASP_INCLUDE_TYPE_H_
+
 #pragma once
 
 #include <cstdint>
@@ -147,3 +150,5 @@ inline Ref<FuncType> FuncType::make(std::vector<Ref<IRNode>> arg_types, Ref<IRNo
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_TYPE_H_ */

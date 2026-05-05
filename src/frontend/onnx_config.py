@@ -59,7 +59,6 @@ def _handle_conv(inputs: list, attrs: dict) -> dict:
         "padding":   attrs.get("pads",      [0, 0, 0, 0]),
         "dilation":  attrs.get("dilations", [1, 1]),
         "groups":    attrs.get("group",     1),
-        "out_dtype": "float32",
     }
     return _make_call("nn.conv2d", inputs, ir_attrs)
 
@@ -88,7 +87,7 @@ def _handle_avg_pool(inputs: list, attrs: dict) -> dict:
         "pool_size":         attrs.get("kernel_shape",      [1, 1]),
         "strides":           attrs.get("strides",           [1, 1]),
         "padding":           attrs.get("pads",              [0, 0, 0, 0]),
-        "count_include_pad": bool(attrs.get("count_include_pad", 0)),
+        "count_include_pad": int(attrs.get("count_include_pad", 0)),
     }
     return _make_call("nn.avg_pool2d", inputs, ir_attrs)
 
@@ -99,8 +98,8 @@ def _handle_global_avg_pool(inputs: list, attrs: dict) -> dict:
 
 def _handle_gemm(inputs: list, attrs: dict) -> dict:
     ir_attrs = {
-        "transA": attrs.get("transA", 0),
-        "transB": attrs.get("transB", 0),
+        "transpose_a": attrs.get("transA", 0),
+        "transpose_b": attrs.get("transB", 0),
         "alpha":  attrs.get("alpha",  1.0),
         "beta":   attrs.get("beta",   1.0),
     }
@@ -120,7 +119,8 @@ def _handle_concat(inputs: list, attrs: dict) -> dict:
 
 
 def _handle_flatten(inputs: list, attrs: dict) -> dict:
-    return _make_call("nn.flatten", inputs, {"axis": attrs.get("axis", 1)})
+    axis = attrs.get("axis", 1)
+    return _make_call("nn.flatten", inputs, {"start_dim": axis, "end_dim": -1})
 
 
 def _handle_reshape(inputs: list, attrs: dict) -> dict:

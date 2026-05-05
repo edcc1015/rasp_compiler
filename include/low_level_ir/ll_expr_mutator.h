@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_MUTATOR_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_MUTATOR_H_
+
 #pragma once
 
 #include <vector>
@@ -68,7 +71,7 @@ class PrimExprMutator {
  * Leaf statement nodes (BufferStore, Evaluate) default to identity.
  * mutate_stmt() is the entry point and dispatches based on node type.
  * ────────────────────────────────────────────────────────────────────────── */
-class StmtMutator {
+class StmtMutator : public PrimExprMutator {
  public:
   virtual ~StmtMutator() = default;
 
@@ -80,9 +83,8 @@ class StmtMutator {
   virtual Ref<Stmt> mutate_if_then_else(Ref<IfThenElse> node);
   virtual Ref<Stmt> mutate_allocate(Ref<Allocate> node);
 
-  /* Leaf statement nodes — default: identity. */
-  virtual Ref<Stmt> mutate_buffer_store(Ref<BufferStore> node) { return node; }
-  virtual Ref<Stmt> mutate_evaluate(Ref<Evaluate> node)        { return node; }
+  virtual Ref<Stmt> mutate_buffer_store(Ref<BufferStore> node);
+  virtual Ref<Stmt> mutate_evaluate(Ref<Evaluate> node);
 
  protected:
   StmtMutator() = default;
@@ -90,3 +92,4 @@ class StmtMutator {
 
 } /* namespace rasp */
 
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_MUTATOR_H_ */

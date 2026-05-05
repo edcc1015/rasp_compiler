@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_PASS_PASS_H_
+#define RASP_INCLUDE_PASS_PASS_H_
+
 #pragma once
 
 #include <memory>
@@ -78,3 +81,5 @@ class ModulePass : public Pass {
 };
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_PASS_PASS_H_ */

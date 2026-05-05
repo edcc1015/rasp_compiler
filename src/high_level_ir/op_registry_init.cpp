@@ -75,6 +75,10 @@ static const StaticInit REGISTER_OPS([]() {
   OpRegistry::register_op("nn.dense", {
     {"units",         "int",    false, "0"},
     {"out_dtype",     "string", false, ""},
+    {"transpose_a",   "int",    false, "0"},
+    {"transpose_b",   "int",    false, "0"},
+    {"alpha",         "float",  false, "1.0"},
+    {"beta",          "float",  false, "1.0"},
   }, "Fully connected layer: out = input @ weight.T + bias");
 
   OpRegistry::register_op("nn.matmul", {
@@ -96,7 +100,7 @@ static const StaticInit REGISTER_OPS([]() {
   }, "Flatten dimensions [start_dim, end_dim] into one");
 
   OpRegistry::register_op("nn.reshape", {
-    {"newshape", "ints", true, ""},
+    {"newshape", "ints", false, ""},
   }, "Reshape tensor to the given shape");
 });
 

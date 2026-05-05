@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_STMT_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_STMT_H_
+
 #pragma once
 
 #include <stdexcept>
@@ -221,3 +224,4 @@ inline Ref<Evaluate> Evaluate::make(Ref<PrimExpr> value) {
 
 } /* namespace rasp */
 
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_STMT_H_ */

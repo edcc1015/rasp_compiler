@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_MUTATOR_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_MUTATOR_H_
+
 #pragma once
 
 #include "expr.h"
@@ -38,3 +41,5 @@ class ExprMutator {
 };
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_MUTATOR_H_ */

@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_PRIM_EXPR_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_PRIM_EXPR_H_
+
 #pragma once
 
 #include <cstdint>
@@ -311,3 +314,5 @@ inline Ref<PrimCall> PrimCall::make(DataType dtype,
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_PRIM_EXPR_H_ */

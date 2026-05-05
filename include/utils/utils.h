@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_UTILS_UTILS_H_
+#define RASP_INCLUDE_UTILS_UTILS_H_
+
 #pragma once
 
 #include "log.h"
@@ -23,3 +26,5 @@ enum RpcErrCode  {
   } while (0)
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_UTILS_UTILS_H_ */

@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_HL_IR_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_HL_IR_H_
+
 #pragma once
 
 /*
@@ -18,3 +21,5 @@
 #include "ir_module.h"
 #include "hl_expr_visitor.h"
 #include "hl_expr_mutator.h"
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_HL_IR_H_ */

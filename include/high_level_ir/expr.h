@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_EXPR_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_EXPR_H_
+
 #pragma once
 
 #include <cstdint>
@@ -50,24 +53,23 @@ inline Ref<Var> Var::make(std::string name, Ref<IRNode> type_annotation) {
 /* ──────────────────────────────────────────────────────────────────────────
  * Constant
  * A constant tensor node.
- * data is stored row-major as float32 raw bytes for simplicity;
- * the actual dtype is recorded in tensor_type.
+ * data stores row-major raw bytes; tensor_type records the element dtype.
  * ────────────────────────────────────────────────────────────────────────── */
 class Constant : public Expr {
  public:
-  std::vector<float> data;
+  std::vector<uint8_t> data;
   Ref<TensorType> tensor_type;
 
   IRNodeType node_type() const override { return IRNodeType::kConstant; }
 
-  static Ref<Constant> make(std::vector<float> data, Ref<TensorType> ttype);
+  static Ref<Constant> make(std::vector<uint8_t> data, Ref<TensorType> ttype);
 
  private:
-  Constant(std::vector<float> data, Ref<TensorType> ttype)
+  Constant(std::vector<uint8_t> data, Ref<TensorType> ttype)
     : data(std::move(data)), tensor_type(std::move(ttype)) {}
 };
 
-inline Ref<Constant> Constant::make(std::vector<float> data, Ref<TensorType> ttype) {
+inline Ref<Constant> Constant::make(std::vector<uint8_t> data, Ref<TensorType> ttype) {
   return std::shared_ptr<Constant>(new Constant(std::move(data), std::move(ttype)));
 }
 
@@ -256,3 +258,5 @@ inline Ref<Function> Function::make(
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_EXPR_H_ */

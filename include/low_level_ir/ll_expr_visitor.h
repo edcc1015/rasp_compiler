@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_VISITOR_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_VISITOR_H_
+
 #pragma once
 
 #include "low_level_ir/stmt.h"
@@ -55,7 +58,7 @@ class PrimExprVisitor {
  * Default implementations recurse into child statements.
  * Leaf statement nodes (BufferStore, Evaluate) default to no-op.
  * ────────────────────────────────────────────────────────────────────────── */
-class StmtVisitor {
+class StmtVisitor : public PrimExprVisitor {
  public:
   virtual ~StmtVisitor() = default;
 
@@ -67,9 +70,8 @@ class StmtVisitor {
   virtual void visit_if_then_else(Ref<IfThenElse> node);
   virtual void visit_allocate(Ref<Allocate> node);
 
-  /* Leaf statement nodes — default: no-op. */
-  virtual void visit_buffer_store(Ref<BufferStore> node) { (void)node; }
-  virtual void visit_evaluate(Ref<Evaluate> node)        { (void)node; }
+  virtual void visit_buffer_store(Ref<BufferStore> node);
+  virtual void visit_evaluate(Ref<Evaluate> node);
 
  protected:
   StmtVisitor() = default;
@@ -77,3 +79,4 @@ class StmtVisitor {
 
 } /* namespace rasp */
 
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_LL_EXPR_VISITOR_H_ */

@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_PRIM_FUNC_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_PRIM_FUNC_H_
+
 #pragma once
 
 #include <string>
@@ -56,3 +59,5 @@ inline Ref<PrimFunc> PrimFunc::make(
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_PRIM_FUNC_H_ */

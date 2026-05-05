@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_UTILS_LOG_H_
+#define RASP_INCLUDE_UTILS_LOG_H_
+
 #pragma once
 #include <string>
 #include <iostream>
@@ -15,3 +18,5 @@
 
 #define LOG_D(msg) \
     std::cout << ANSI_YELLOW "[Debug] " ANSI_RESET << (msg) << "\n"
+
+#endif /* RASP_INCLUDE_UTILS_LOG_H_ */

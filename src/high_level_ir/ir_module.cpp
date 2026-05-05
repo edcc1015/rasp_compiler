@@ -148,7 +148,7 @@ static json expr_to_json(const Ref<Expr>& e) {
       } else {
         j["dtype"] = "float32";
       }
-      j["data"] = base64_encode(c->data.data(), c->data.size() * sizeof(float));
+      j["data"] = base64_encode(c->data.data(), c->data.size());
       return j;
     }
 
@@ -295,10 +295,7 @@ static Ref<Expr> json_to_expr(const json& j) {
     DataType dt = dtype_from_string(j.at("dtype").get<std::string>());
     auto shape = j.at("shape").get<std::vector<int64_t>>();
     auto raw = base64_decode(j.at("data").get<std::string>());
-    size_t n = raw.size() / sizeof(float);
-    std::vector<float> data(n);
-    if (n) memcpy(data.data(), raw.data(), n * sizeof(float));
-    return Constant::make(std::move(data), TensorType::make(shape, dt));
+    return Constant::make(std::move(raw), TensorType::make(shape, dt));
   }
 
   if (kind == "Call") {

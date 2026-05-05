@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_LL_IR_MODULE_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_LL_IR_MODULE_H_
+
 #pragma once
 
 #include <stdexcept>
@@ -52,3 +55,5 @@ inline Ref<LLIRModule> LLIRModule::make() {
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_LL_IR_MODULE_H_ */

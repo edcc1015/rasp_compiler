@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_PASS_PASS_MANAGER_H_
+#define RASP_INCLUDE_PASS_PASS_MANAGER_H_
+
 #pragma once
 
 #include <functional>
@@ -94,3 +97,5 @@ class PassRegistry {
   }()
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_PASS_PASS_MANAGER_H_ */

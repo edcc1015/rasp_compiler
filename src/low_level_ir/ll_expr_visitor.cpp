@@ -113,14 +113,30 @@ void StmtVisitor::visit_seq_stmt(Ref<SeqStmt> node) {
   for (auto& s : node->seq) visit_stmt(s);
 }
 
-void StmtVisitor::visit_for(Ref<For> node) { visit_stmt(node->body); }
+void StmtVisitor::visit_for(Ref<For> node) {
+  visit(node->min);
+  visit(node->extent);
+  visit_stmt(node->body);
+}
 
 void StmtVisitor::visit_if_then_else(Ref<IfThenElse> node) {
+  visit(node->condition);
   visit_stmt(node->then_case);
   if (node->else_case) visit_stmt(node->else_case);
 }
 
-void StmtVisitor::visit_allocate(Ref<Allocate> node) { visit_stmt(node->body); }
+void StmtVisitor::visit_allocate(Ref<Allocate> node) {
+  for (auto& extent : node->extents) visit(extent);
+  visit_stmt(node->body);
+}
+
+void StmtVisitor::visit_buffer_store(Ref<BufferStore> node) {
+  for (auto& idx : node->indices) visit(idx);
+  visit(node->value);
+}
+
+void StmtVisitor::visit_evaluate(Ref<Evaluate> node) {
+  visit(node->value);
+}
 
 } /* namespace rasp */
-

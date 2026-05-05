@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_LOW_LEVEL_IR_BUFFER_H_
+#define RASP_INCLUDE_LOW_LEVEL_IR_BUFFER_H_
+
 #pragma once
 
 #include <string>
@@ -81,3 +84,5 @@ inline Ref<Buffer> Buffer::make(std::string name,
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_LOW_LEVEL_IR_BUFFER_H_ */

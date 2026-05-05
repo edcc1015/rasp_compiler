@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_OP_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_OP_H_
+
 #pragma once
 
 #include <stdexcept>
@@ -77,3 +80,5 @@ class OpRegistry {
 };
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_OP_H_ */

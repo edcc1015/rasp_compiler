@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_IR_NODE_H_
+#define RASP_INCLUDE_IR_NODE_H_
+
 #pragma once
 
 #include <memory>
@@ -83,3 +86,5 @@ template <typename T>
 using Ref = std::shared_ptr<T>;
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_IR_NODE_H_ */

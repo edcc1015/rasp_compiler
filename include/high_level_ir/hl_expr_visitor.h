@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_VISITOR_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_VISITOR_H_
+
 #pragma once
 
 #include "expr.h"
@@ -36,3 +39,5 @@ class ExprVisitor {
 };
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_HL_EXPR_VISITOR_H_ */

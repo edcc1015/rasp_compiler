@@ -1,3 +1,6 @@
+#ifndef RASP_INCLUDE_HIGH_LEVEL_IR_IR_MODULE_H_
+#define RASP_INCLUDE_HIGH_LEVEL_IR_IR_MODULE_H_
+
 #pragma once
 
 #include <stdexcept>
@@ -53,3 +56,5 @@ inline Ref<IRModule> IRModule::make() {
 }
 
 } /* namespace rasp */
+
+#endif /* RASP_INCLUDE_HIGH_LEVEL_IR_IR_MODULE_H_ */

@@ -157,28 +157,62 @@ Ref<Stmt> StmtMutator::mutate_seq_stmt(Ref<SeqStmt> node) {
 }
 
 Ref<Stmt> StmtMutator::mutate_for(Ref<For> node) {
+  auto new_min = mutate(node->min);
+  auto new_extent = mutate(node->extent);
   auto new_body = mutate_stmt(node->body);
-  if (new_body == node->body) return node;
-  return For::make(node->loop_var, node->min,
-                   node->extent, node->kind,
+  if (new_min == node->min &&
+      new_extent == node->extent &&
+      new_body == node->body) return node;
+  return For::make(node->loop_var, std::move(new_min),
+                   std::move(new_extent), node->kind,
                    std::move(new_body));
 }
 
 Ref<Stmt> StmtMutator::mutate_if_then_else(Ref<IfThenElse> node) {
+  auto new_condition = mutate(node->condition);
   auto new_then = mutate_stmt(node->then_case);
   auto new_else = node->else_case ? mutate_stmt(node->else_case) : nullptr;
-  if (new_then == node->then_case && new_else == node->else_case) return node;
-  return IfThenElse::make(node->condition,
+  if (new_condition == node->condition &&
+      new_then == node->then_case &&
+      new_else == node->else_case) return node;
+  return IfThenElse::make(std::move(new_condition),
                           std::move(new_then),
                           std::move(new_else));
 }
 
 Ref<Stmt> StmtMutator::mutate_allocate(Ref<Allocate> node) {
+  std::vector<Ref<PrimExpr>> new_extents;
+  new_extents.reserve(node->extents.size());
+  bool changed = false;
+  for (auto& extent : node->extents) {
+    auto new_extent = mutate(extent);
+    if (new_extent != extent) changed = true;
+    new_extents.push_back(std::move(new_extent));
+  }
   auto new_body = mutate_stmt(node->body);
-  if (new_body == node->body) return node;
+  if (!changed && new_body == node->body) return node;
   return Allocate::make(node->buffer_var, node->dtype,
-                        node->extents, std::move(new_body));
+                        std::move(new_extents), std::move(new_body));
+}
+
+Ref<Stmt> StmtMutator::mutate_buffer_store(Ref<BufferStore> node) {
+  std::vector<Ref<PrimExpr>> new_indices;
+  new_indices.reserve(node->indices.size());
+  bool changed = false;
+  for (auto& idx : node->indices) {
+    auto new_idx = mutate(idx);
+    if (new_idx != idx) changed = true;
+    new_indices.push_back(std::move(new_idx));
+  }
+  auto new_value = mutate(node->value);
+  if (!changed && new_value == node->value) return node;
+  return BufferStore::make(node->buffer, std::move(new_indices), std::move(new_value));
+}
+
+Ref<Stmt> StmtMutator::mutate_evaluate(Ref<Evaluate> node) {
+  auto new_value = mutate(node->value);
+  if (new_value == node->value) return node;
+  return Evaluate::make(std::move(new_value));
 }
 
 } /* namespace rasp */
-
