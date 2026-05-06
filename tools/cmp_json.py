@@ -1,13 +1,29 @@
 import json
 import sys
 
+
+def normalize(obj):
+    """Normalize JSON for semantic comparison.
+
+    Removes empty ``"attrs"`` objects from Call nodes so that
+    ``{"attrs": {}}`` and no ``"attrs"`` key compare as equal.
+    """
+    if isinstance(obj, dict):
+        if obj.get("kind") == "Call" and obj.get("attrs") == {}:
+            obj = {k: v for k, v in obj.items() if k != "attrs"}
+        return {k: normalize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [normalize(v) for v in obj]
+    return obj
+
+
 def compare_json_simple(file1, file2):
     try:
         with open(file1, 'r', encoding='utf-8') as f1:
-            json1 = json.load(f1)
+            json1 = normalize(json.load(f1))
 
         with open(file2, 'r', encoding='utf-8') as f2:
-            json2 = json.load(f2)
+            json2 = normalize(json.load(f2))
 
         str1 = json.dumps(json1, sort_keys=True, indent=2)
         str2 = json.dumps(json2, sort_keys=True, indent=2)

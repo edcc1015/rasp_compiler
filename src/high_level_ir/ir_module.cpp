@@ -166,8 +166,9 @@ static json expr_to_json(const Ref<Expr>& e) {
       }
       json args = json::array();
       for (auto& a : call->args) args.push_back(expr_to_json(a));
-      j["args"]  = std::move(args);
-      j["attrs"] = attrs_to_json(call->attrs);
+      j["args"] = std::move(args);
+      if (!call->attrs.values.empty())
+        j["attrs"] = attrs_to_json(call->attrs);
       return j;
     }
 
