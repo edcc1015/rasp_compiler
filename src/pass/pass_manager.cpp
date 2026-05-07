@@ -1,41 +1,6 @@
 #include "pass/pass_manager.h"
 
-#include <chrono>
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
-#include <unordered_set>
-
-#include "utils/log.h"
-
 namespace rasp {
-
-/* ── FunctionPass ─────────────────────────────────────────────────────────── */
-
-Ref<IRModule> FunctionPass::transform_hlir(Ref<IRModule> mod,
-                                            const PassContext& ctx) {
-  auto new_mod = IRModule::make();
-  for (auto& [name, func] : mod->functions) {
-    auto new_func = transform_function(func, mod, ctx);
-    new_mod->add_function(name, new_func);
-  }
-  return new_mod;
-}
-
-/* ── PassManager ──────────────────────────────────────────────────────────── */
-
-void PassManager::add_pass(std::shared_ptr<Pass> pass) {
-  passes_.push_back(std::move(pass));
-}
-
-void PassManager::add_passes(std::initializer_list<std::shared_ptr<Pass>> passes) {
-  for (auto& p : passes) passes_.push_back(p);
-}
-
-void PassManager::clear() {
-  passes_.clear();
-}
 
 void PassManager::print_pipeline() const {
   LOG_I("[PassManager] Pipeline:");
@@ -144,41 +109,6 @@ Ref<LLIRModule> PassManager::run_llir(Ref<LLIRModule> mod,
     LOG_I(time_msg.str().c_str());
   }
   return mod;
-}
-
-/* ── PassRegistry ─────────────────────────────────────────────────────────── */
-
-std::unordered_map<std::string, PassRegistry::PassFactory>&
-PassRegistry::registry() {
-  static std::unordered_map<std::string, PassFactory> reg;
-  return reg;
-}
-
-void PassRegistry::register_pass(const std::string& name, PassFactory factory) {
-  auto& reg = registry();
-  if (reg.count(name)) {
-    throw std::runtime_error("PassRegistry: pass already registered: " + name);
-  }
-  reg[name] = std::move(factory);
-}
-
-std::shared_ptr<Pass> PassRegistry::create(const std::string& name) {
-  auto& reg = registry();
-  auto it = reg.find(name);
-  if (it == reg.end()) {
-    throw std::runtime_error("PassRegistry: pass not found: " + name);
-  }
-  return it->second();
-}
-
-bool PassRegistry::has(const std::string& name) {
-  return registry().count(name) > 0;
-}
-
-std::vector<std::string> PassRegistry::list_all() {
-  std::vector<std::string> names;
-  for (auto& kv : registry()) names.push_back(kv.first);
-  return names;
 }
 
 } /* namespace rasp */

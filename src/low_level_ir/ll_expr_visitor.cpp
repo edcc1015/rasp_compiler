@@ -1,5 +1,3 @@
-#include <stdexcept>
-
 #include "low_level_ir/ll_expr_visitor.h"
 
 namespace rasp {

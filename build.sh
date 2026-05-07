@@ -6,6 +6,7 @@
 #   -j N, --jobs N     并行数（默认 nproc）
 #       --asan         开启 AddressSanitizer
 #       --no-tests     不构建测试
+#       --test         构建完成后运行 ctest
 #       --run [ARGS]   构建完成后运行 rasp_compiler
 set -euo pipefail
 
@@ -15,6 +16,7 @@ CLEAN=0
 JOBS=$(nproc)
 ASAN="OFF"
 BUILD_TESTS="ON"
+RUN_TESTS=0
 RUN_AFTER=0
 RUN_ARGS=()
 
@@ -25,7 +27,8 @@ while [[ $# -gt 0 ]]; do
     -c|--clean)     CLEAN=1;                   shift ;;
     -j|--jobs)      JOBS="$2";                 shift 2 ;;
        --asan)      ASAN="ON";                 shift ;;
-       --no-tests)  BUILD_TESTS="OFF";         shift ;;
+        --no-tests)  BUILD_TESTS="OFF";         shift ;;
+       --test)      RUN_TESTS=1;               shift ;;
        --run)       RUN_AFTER=1;               shift
                     while [[ $# -gt 0 && "$1" != --* ]]; do
                       RUN_ARGS+=("$1"); shift
@@ -72,6 +75,13 @@ echo "✓ 构建完成 [${BUILD_TYPE}]"
 echo "  二进制:  ${BINARY}"
 echo "  调试:    gdb --args ${BINARY} <input.json>"
 echo "  ASan:    RASP_ASAN=ON ./build.sh --asan"
+
+if [[ $RUN_TESTS -eq 1 ]]; then
+  echo
+  echo "运行测试..."
+  echo "────────────────────────────────────────"
+  ctest --test-dir "$BUILD_DIR" --output-on-failure
+fi
 
 if [[ $RUN_AFTER -eq 1 ]]; then
   echo

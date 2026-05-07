@@ -9,15 +9,8 @@
  * Compile with -I include -I third_party.
  */
 
-#include "high_level_ir/hl_ir.h"
+#include "high_level_ir/ir_module.h"
 #include "nlohmann/json.hpp"
-
-#include <cstdint>
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 namespace rasp {
 

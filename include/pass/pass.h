@@ -33,14 +33,14 @@ class Pass {
 
   /* Transform a HLIR module; default is identity. */
   virtual Ref<IRModule> transform_hlir(Ref<IRModule> mod,
-                                        const PassContext& ctx) {
+                                       const PassContext& ctx) {
     (void)ctx;
     return mod;
   }
 
   /* Transform a LLIR module; default is identity. */
   virtual Ref<LLIRModule> transform_llir(Ref<LLIRModule> mod,
-                                          const PassContext& ctx) {
+                                         const PassContext& ctx) {
     (void)ctx;
     return mod;
   }
@@ -57,11 +57,18 @@ class Pass {
 class FunctionPass : public Pass {
  public:
   virtual Ref<Function> transform_function(Ref<Function> func,
-                                            Ref<IRModule> mod,
-                                            const PassContext& ctx) = 0;
+                                           Ref<IRModule> mod,
+                                           const PassContext& ctx) = 0;
 
   Ref<IRModule> transform_hlir(Ref<IRModule> mod,
-                                 const PassContext& ctx) override final;
+                               const PassContext& ctx) override final {
+    auto new_mod = IRModule::make();
+    for (auto& [name, func] : mod->functions) {
+      auto new_func = transform_function(func, mod, ctx);
+      new_mod->add_function(name, new_func);
+    }
+    return new_mod;
+  }
 };
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -72,10 +79,10 @@ class FunctionPass : public Pass {
 class ModulePass : public Pass {
  public:
   virtual Ref<IRModule> transform_module(Ref<IRModule> mod,
-                                          const PassContext& ctx) = 0;
+                                         const PassContext& ctx) = 0;
 
   Ref<IRModule> transform_hlir(Ref<IRModule> mod,
-                                 const PassContext& ctx) override final {
+                               const PassContext& ctx) override final {
     return transform_module(mod, ctx);
   }
 };

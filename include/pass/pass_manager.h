@@ -9,8 +9,15 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <unordered_set>
 
 #include "pass.h"
+#include "utils/log.h"
 
 namespace rasp {
 
@@ -20,8 +27,10 @@ namespace rasp {
  * ────────────────────────────────────────────────────────────────────────── */
 class PassManager {
  public:
-  void add_pass(std::shared_ptr<Pass> pass);
-  void add_passes(std::initializer_list<std::shared_ptr<Pass>> passes);
+  void add_pass(std::shared_ptr<Pass> pass) { passes_.push_back(std::move(pass)); };
+  void add_passes(std::initializer_list<std::shared_ptr<Pass>> passes) {
+    for (auto& p : passes) passes_.push_back(p);
+  };
 
   /* Execute all registered HLIR passes; returns the final transformed module. */
   Ref<IRModule> run(Ref<IRModule> mod, const PassContext& ctx) const;
@@ -29,7 +38,7 @@ class PassManager {
   /* Execute all registered LLIR passes; returns the final transformed module. */
   Ref<LLIRModule> run_llir(Ref<LLIRModule> mod, const PassContext& ctx) const;
 
-  void clear();
+  void clear() { passes_.clear(); };
   void print_pipeline() const;
 
  private:
@@ -78,13 +87,36 @@ class PassRegistry {
  public:
   using PassFactory = std::function<std::shared_ptr<Pass>()>;
 
-  static void register_pass(const std::string& name, PassFactory factory);
-  static std::shared_ptr<Pass> create(const std::string& name);
-  static bool has(const std::string& name);
-  static std::vector<std::string> list_all();
+  static void register_pass(const std::string& name, PassFactory factory) {
+    auto& reg = registry();
+    if (reg.count(name)) {
+      throw std::runtime_error("PassRegistry: pass already registered: " + name);
+    }
+    reg[name] = std::move(factory);
+  };
+
+  static std::shared_ptr<Pass> create(const std::string& name) {
+    auto& reg = registry();
+    auto it = reg.find(name);
+    if (it == reg.end()) {
+      throw std::runtime_error("PassRegistry: pass not found: " + name);
+    }
+    return it->second();
+  };
+
+  static bool has(const std::string& name) { return registry().count(name) > 0; };
+
+  static std::vector<std::string> list_all() {
+    std::vector<std::string> names;
+    for (auto& kv : registry()) names.push_back(kv.first);
+    return names;
+  };
 
  private:
-  static std::unordered_map<std::string, PassFactory>& registry();
+  static std::unordered_map<std::string, PassFactory>& registry() {
+    static std::unordered_map<std::string, PassFactory> reg;
+    return reg;
+  };
 };
 
 /* Place at the end of each Pass .cpp file to auto-register the pass. */

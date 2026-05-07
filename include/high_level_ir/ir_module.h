@@ -6,6 +6,12 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <cstdint>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #include "ir_node.h"
 #include "expr.h"

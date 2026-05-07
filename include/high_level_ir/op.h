@@ -64,19 +64,48 @@ class OpRegistry {
   /* Register a new op.  Throws std::runtime_error if already registered. */
   static void register_op(const std::string& name,
                           std::vector<AttrSchema> schema,
-                          const std::string& desc = "");
+                          const std::string& desc = "") {
+    auto& reg = registry();
+    if (reg.count(name)) {
+      throw std::runtime_error("Op already registered: " + name);
+    }
+    /* Op constructor is private; use the friend access via a local subclass. */
+    struct Enabler : Op {
+      Enabler(const std::string& n, std::vector<AttrSchema> s, const std::string& d)
+        : Op(n, std::move(s), d) {}
+    };
+    reg[name] = std::make_shared<Enabler>(name, std::move(schema), desc);
+  };
 
   /* Retrieve a registered op.  Throws std::runtime_error if not found. */
-  static Ref<Op> get(const std::string& name);
+  static Ref<Op> get(const std::string& name) {
+    auto& reg = registry();
+    auto  it  = reg.find(name);
+    if (it == reg.end()) {
+      throw std::runtime_error("Op not found: " + name);
+    }
+    return it->second;
+  };
 
   /* Returns true iff the op has been registered. */
-  static bool has(const std::string& name);
+  static bool has(const std::string& name) {
+    return registry().count(name) > 0;
+  };
 
   /* Returns the names of all registered ops in unspecified order. */
-  static std::vector<std::string> list_all();
+  static std::vector<std::string> list_all() {
+    std::vector<std::string> names;
+    names.reserve(registry().size());
+    for (auto& kv : registry()) names.push_back(kv.first);
+    return names;
+  };
 
  private:
-  static std::unordered_map<std::string, Ref<Op>>& registry();
+  static std::unordered_map<std::string, Ref<Op>>& registry() {
+    /* Meyer's singleton — initialized once, destroyed at program exit. */
+    static std::unordered_map<std::string, Ref<Op>> instance;
+    return instance;
+  };
 };
 
 } /* namespace rasp */

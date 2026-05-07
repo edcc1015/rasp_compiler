@@ -135,7 +135,7 @@ class ONNXFrontend:
                 else:
                     shape.append(-1)
         return {"kind": "TensorType", "shape": shape, "dtype": dtype}
-    
+
 if __name__ == "__main__":
     frontend = ONNXFrontend("tests/frontend/tiny_smoke.onnx")
     ir_module_json = frontend.parse()

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <stdexcept>
+#include <vector>
+
 #include "expr.h"
 
 namespace rasp {

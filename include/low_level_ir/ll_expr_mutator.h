@@ -4,6 +4,7 @@
 #pragma once
 
 #include <vector>
+#include <stdexcept>
 
 #include "low_level_ir/stmt.h"
 

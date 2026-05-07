@@ -3,10 +3,29 @@
 
 #pragma once
 
+#include <sstream>
+
 #include "log.h"
 
 
 namespace rasp {
+
+#define RPC_CHECK(x)                         \
+  do {                                       \
+    int ret = (x);                           \
+    if (ret != rasp::kRpcSuccess) {           \
+      if (ret == rasp::kRpcShowInfoEnd)       \
+        ret = 0;                             \
+      return ret; /* or throw or whatever */ \
+    }                                        \
+  } while (0)
+
+struct InputArgument {
+  bool dump_ir = false;
+  std::string dump_dir = "./ir_dump";
+  int opt_level = 2;
+  std::ostringstream input_ir_str_buf;
+};
 
 enum RpcErrCode  {
   kRpcSuccess = 0,
@@ -15,15 +34,6 @@ enum RpcErrCode  {
   kRpcShowInfoEnd = 3
 };
 
-#define RPC_CHECK(x)                         \
-  do {                                       \
-    int ret = (x);                           \
-    if (ret != kRpcSuccess) {           \
-      if (ret == kRpcShowInfoEnd)       \
-        ret = 0;                             \
-      return ret; /* or throw or whatever */ \
-    }                                        \
-  } while (0)
 
 } /* namespace rasp */
 

@@ -41,7 +41,6 @@ target_include_directories(rasp_includes INTERFACE
 # OBJECT 库确保所有 .o 被直接链入，避免静态库链接器丢弃
 # op_registry_init.cpp 的 static-init 块依赖此行为
 add_library(rasp_ir OBJECT
-  src/high_level_ir/op.cpp
   src/high_level_ir/op_registry_init.cpp
   src/high_level_ir/ir_module.cpp
   src/high_level_ir/hl_expr_visitor.cpp
@@ -51,6 +50,8 @@ add_library(rasp_ir OBJECT
   src/low_level_ir/ll_expr_visitor.cpp
   src/low_level_ir/ll_expr_mutator.cpp
   src/pass/pass_manager.cpp
+  src/pass/opt/constant_folding.cpp
+  src/pass/opt/operator_fusion.cpp
 )
 target_link_libraries(rasp_ir
   PUBLIC  rasp_includes
@@ -70,4 +71,3 @@ if(RASP_BUILD_TESTS)
     add_subdirectory(tests)
   endif()
 endif()
-

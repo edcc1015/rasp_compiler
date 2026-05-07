@@ -4,6 +4,7 @@ build/
 code/
 design_docs/
 docs/
+model_ir/
 
 model_ir_format.json
 model_ir.json

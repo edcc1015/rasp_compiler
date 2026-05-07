@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 #include "low_level_ir/stmt.h"
 
 namespace rasp {
