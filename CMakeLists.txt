@@ -51,6 +51,7 @@ add_library(rasp_ir OBJECT
   src/low_level_ir/ll_expr_mutator.cpp
   src/pass/pass_manager.cpp
   src/pass/opt/constant_folding.cpp
+  src/pass/opt/dead_code_elimination.cpp
   src/pass/opt/operator_fusion.cpp
 )
 target_link_libraries(rasp_ir

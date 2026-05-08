@@ -5,6 +5,7 @@
 
 #include "high_level_ir/hl_ir.h"
 #include "pass/opt/constant_folding.h"
+#include "pass/opt/dead_code_elimination.h"
 #include "pass/opt/operator_fusion.h"
 #include "pass/pass_manager.h"
 #include "utils/utils.h"
@@ -109,10 +110,116 @@ static bool test_fusion_conv2d_add_relu() {
 
 /* ── main ────────────────────────────────────────────────────────────────── */
 
+/*
+ * Test 4 – DeadCodeElimination: dead Let binding removed
+ * Graph : fn(x) { let dead = relu(x) in x }
+ * Expect: Let binding eliminated; "nn.relu" absent from JSON.
+ */
+static bool test_dce_dead_let() {
+  auto x        = rasp::Var::make("x");
+  auto dead_var = rasp::Var::make("dead");
+  auto relu_x   = rasp::Call::make(rasp::OpRegistry::get("nn.relu"), {x});
+  /* body just returns x without referencing dead_var */
+  auto body     = rasp::Let::make(dead_var, relu_x, x);
+  auto mod      = rasp::IRModule::make();
+  mod->add_function("main", rasp::Function::make({x}, body));
+
+  rasp::PassContext ctx;
+  ctx.opt_level = 1;
+  rasp::PassManager pm;
+  pm.add_pass(std::make_shared<rasp::DeadCodeElimination>());
+  std::string out = pm.run(mod, ctx)->to_json();
+
+  /* Dead relu should be gone; no "Let" or "nn.relu" in the result. */
+  return check("test_dce_dead_let",
+               out.find("\"nn.relu\"") == std::string::npos &&
+               out.find("\"Let\"")     == std::string::npos);
+}
+
+/*
+ * Test 5 – DeadCodeElimination: live Let binding preserved
+ * Graph : fn(x) { let y = relu(x) in y }
+ * Expect: binding kept; "nn.relu" present in JSON.
+ */
+static bool test_dce_live_let() {
+  auto x    = rasp::Var::make("x");
+  auto y    = rasp::Var::make("y");
+  auto relu = rasp::Call::make(rasp::OpRegistry::get("nn.relu"), {x});
+  /* body returns y, so the binding is live */
+  auto body = rasp::Let::make(y, relu, y);
+  auto mod  = rasp::IRModule::make();
+  mod->add_function("main", rasp::Function::make({x}, body));
+
+  rasp::PassContext ctx;
+  ctx.opt_level = 1;
+  rasp::PassManager pm;
+  pm.add_pass(std::make_shared<rasp::DeadCodeElimination>());
+  std::string out = pm.run(mod, ctx)->to_json();
+
+  return check("test_dce_live_let",
+               out.find("\"nn.relu\"") != std::string::npos);
+}
+
+/*
+ * Test 6 – DeadCodeElimination: cascaded dead bindings eliminated in one pass
+ * Graph : fn(x) { let a = relu(x) in
+ *                 let b = relu(a) in
+ *                 x }
+ * Expect: both Let bindings gone; no relu in JSON.
+ */
+static bool test_dce_cascaded_dead_lets() {
+  auto x    = rasp::Var::make("x");
+  auto a    = rasp::Var::make("a");
+  auto b    = rasp::Var::make("b");
+  auto ra   = rasp::Call::make(rasp::OpRegistry::get("nn.relu"), {x});
+  auto rb   = rasp::Call::make(rasp::OpRegistry::get("nn.relu"), {a});
+  /* inner let: b unused, outer let: a unused after b is removed */
+  auto body = rasp::Let::make(a, ra, rasp::Let::make(b, rb, x));
+  auto mod  = rasp::IRModule::make();
+  mod->add_function("main", rasp::Function::make({x}, body));
+
+  rasp::PassContext ctx;
+  ctx.opt_level = 1;
+  rasp::PassManager pm;
+  pm.add_pass(std::make_shared<rasp::DeadCodeElimination>());
+  std::string out = pm.run(mod, ctx)->to_json();
+
+  return check("test_dce_cascaded_dead_lets",
+               out.find("\"nn.relu\"") == std::string::npos &&
+               out.find("\"Let\"")     == std::string::npos);
+}
+
+/*
+ * Test 7 – DeadCodeElimination: inline graph (no Let) is unchanged
+ * Graph : fn(x) { relu(x) }
+ * Expect: "nn.relu" still present (DCE must not affect inline nodes).
+ */
+static bool test_dce_no_let_unchanged() {
+  auto x    = rasp::Var::make("x");
+  auto relu = rasp::Call::make(rasp::OpRegistry::get("nn.relu"), {x});
+  auto mod  = rasp::IRModule::make();
+  mod->add_function("main", rasp::Function::make({x}, relu));
+
+  rasp::PassContext ctx;
+  ctx.opt_level = 1;
+  rasp::PassManager pm;
+  pm.add_pass(std::make_shared<rasp::DeadCodeElimination>());
+  std::string out = pm.run(mod, ctx)->to_json();
+
+  return check("test_dce_no_let_unchanged",
+               out.find("\"nn.relu\"") != std::string::npos);
+}
+
+/* ── main ────────────────────────────────────────────────────────────────── */
+
 int main() {
   bool ok = true;
   ok &= test_constant_folding();
   ok &= test_fusion_add_relu();
   ok &= test_fusion_conv2d_add_relu();
+  ok &= test_dce_dead_let();
+  ok &= test_dce_live_let();
+  ok &= test_dce_cascaded_dead_lets();
+  ok &= test_dce_no_let_unchanged();
   return ok ? 0 : 1;
 }
