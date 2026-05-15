@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include <sstream>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 #include "log.h"
 
@@ -21,10 +23,15 @@ namespace rasp {
   } while (0)
 
 struct InputArgument {
-  bool dump_ir = false;
-  std::string dump_dir = "./ir_dump";
-  int opt_level = 2;
-  std::ostringstream input_ir_str_buf;
+  std::string json_path;
+  std::string output_path  = "model_gen.cpp";  /* .cpp or .so */
+  int         opt_level    = 2;
+  bool        dump_ir      = false;
+  std::string dump_dir     = "./ir_dump";
+  /* Concrete input shape parsed from --input-shape, e.g. {1,3,224,224}. */
+  std::vector<int64_t> input_shape;
+  bool        emit_so      = false;
+  std::string cc           = "aarch64-linux-gnu-g++";
 };
 
 enum RpcErrCode  {

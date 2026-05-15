@@ -118,6 +118,7 @@ Ref<Buffer> Lowering::buffer_for_expr(Ref<Expr> expr, const std::string& hint) {
     auto c = std::static_pointer_cast<Constant>(expr);
     auto name = "const_" + sanitize_name(hint) + "_" + std::to_string(const_counter_++);
     auto buf = alloc_buffer(name, c->tensor_type, BufferScope::kGlobal);
+    buf->data = c->data;
     buffer_map_[expr.get()] = buf;
     return buf;
   }

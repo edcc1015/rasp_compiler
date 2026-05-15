@@ -1,3 +1,4 @@
 add_subdirectory(opt_pass)
 add_subdirectory(type_inference)
 add_subdirectory(lowering)
+add_subdirectory(codegen_runtime)

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <vector>
 
 #include "low_level_ir/prim_expr.h"
@@ -38,6 +39,7 @@ class Buffer : public IRNode {
   std::vector<Ref<PrimExpr>> strides; /* empty → row-major contiguous */
   int data_alignment;
   BufferScope scope;
+  std::vector<uint8_t> data;
 
   IRNodeType node_type() const override { return IRNodeType::kBuffer; }
 

@@ -228,7 +228,8 @@ std::string IRModule::to_json() const {
  * ══════════════════════════════════════════════════════════════════════════ */
 
 static Ref<IRNode> json_to_type(const json& j);
-static Ref<Expr>   json_to_expr(const json& j);
+static Ref<Expr>   json_to_expr(const json& j,
+                                const std::unordered_map<std::string, Ref<Var>>& param_vars = {});
 
 static Attrs json_to_attrs(const json& j) {
   Attrs attrs;
@@ -274,15 +275,22 @@ static Ref<IRNode> json_to_type(const json& j) {
   throw std::runtime_error("from_json: unknown type kind '" + kind + "'");
 }
 
-static Ref<Expr> json_to_expr(const json& j) {
+static Ref<Expr> json_to_expr(const json& j,
+                               const std::unordered_map<std::string, Ref<Var>>& param_vars) {
   if (j.is_null()) return nullptr;
   const std::string& kind = j.at("kind").get<std::string>();
 
   if (kind == "Var") {
+    auto name = j.at("name").get<std::string>();
+    /* Reuse the existing Var object from the enclosing Function's param list so
+     * that TypeInference's pointer-keyed env map resolves body references to the
+     * same object as func->params, eliminating the duplicated-object problem. */
+    auto it = param_vars.find(name);
+    if (it != param_vars.end()) return it->second;
     Ref<IRNode> ta;
     if (j.contains("type") && !j["type"].is_null())
       ta = json_to_type(j["type"]);
-    return Var::make(j.at("name").get<std::string>(), ta);
+    return Var::make(name, ta);
   }
 
   if (kind == "Constant") {
@@ -308,44 +316,58 @@ static Ref<Expr> json_to_expr(const json& j) {
           op_node = nullptr;
         }
       } else {
+        /* A Function used as op (e.g. fused kernel) builds its own param scope;
+         * do not propagate the outer param_vars into it. */
         op_node = json_to_expr(op_j);
       }
     }
     std::vector<Ref<Expr>> args;
-    for (auto& a : j.at("args")) args.push_back(json_to_expr(a));
+    for (auto& a : j.at("args")) args.push_back(json_to_expr(a, param_vars));
     Attrs attrs;
     if (j.contains("attrs")) attrs = json_to_attrs(j["attrs"]);
     return Call::make(op_node, std::move(args), std::move(attrs));
   }
 
   if (kind == "Let") {
+    /* The let-bound var is a fresh binding; parse it without outer context.
+     * Both the bound value and the body may reference outer params. */
     auto var = std::dynamic_pointer_cast<Var>(json_to_expr(j.at("var")));
-    return Let::make(var, json_to_expr(j.at("value")), json_to_expr(j.at("body")));
+    return Let::make(var,
+                     json_to_expr(j.at("value"), param_vars),
+                     json_to_expr(j.at("body"),  param_vars));
   }
 
   if (kind == "Tuple") {
     std::vector<Ref<Expr>> fields;
-    for (auto& f : j.at("fields")) fields.push_back(json_to_expr(f));
+    for (auto& f : j.at("fields")) fields.push_back(json_to_expr(f, param_vars));
     return Tuple::make(std::move(fields));
   }
 
   if (kind == "TupleGetItem") {
     return TupleGetItem::make(
-      json_to_expr(j.at("tuple")),
+      json_to_expr(j.at("tuple"), param_vars),
       j.at("index").get<int>());
   }
 
   if (kind == "Function") {
+    /* Parse params first, build a local name→Var map, then parse the body with
+     * that map as context so every Var reference in the body resolves to the
+     * same object as the corresponding entry in Function::params. */
     std::vector<Ref<Var>> params;
-    for (auto& p : j.at("params"))
-      params.push_back(std::dynamic_pointer_cast<Var>(json_to_expr(p)));
+    std::unordered_map<std::string, Ref<Var>> local_params;
+    for (auto& p : j.at("params")) {
+      auto v = std::dynamic_pointer_cast<Var>(json_to_expr(p));
+      local_params[v->name] = v;
+      params.push_back(std::move(v));
+    }
     Ref<IRNode> ret_type;
     if (j.contains("ret_type") && !j["ret_type"].is_null())
       ret_type = json_to_type(j["ret_type"]);
     std::unordered_map<std::string, std::string> fn_attrs;
     if (j.contains("attrs"))
       fn_attrs = j["attrs"].get<std::unordered_map<std::string, std::string>>();
-    return Function::make(std::move(params), json_to_expr(j.at("body")),
+    return Function::make(std::move(params),
+                          json_to_expr(j.at("body"), local_params),
                           ret_type, std::move(fn_attrs));
   }
 
