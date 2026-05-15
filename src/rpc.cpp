@@ -1,4 +1,5 @@
 #include "parse_cmd.h"
+#include "lowering/lowering.h"
 #include "pass/pass_pipeline.h"
 
 
@@ -16,8 +17,11 @@ int main(int argc, char **argv) {
   hlir_pm.print_pipeline();
   auto optimized_mod = hlir_pm.run(mod, ctx);
 
-  /* TODO chapter 7: lower HLIR -> LLIR */
-  /* TODO chapter 8: codegen from LLIR */
+  auto llir_mod = rasp::Lowering::lower(optimized_mod);
+  LOG_I(("lowered prim funcs = " + std::to_string(llir_mod->exec_order.size())).c_str());
+  rasp::PassManager llir_pm = build_llir_pass_pipeline(ctx.opt_level);
+  auto optimized_llir = llir_pm.run_llir(llir_mod, ctx);
+  (void)optimized_llir;
 
   return rasp::kRpcSuccess;
 }

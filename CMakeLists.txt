@@ -49,7 +49,10 @@ add_library(rasp_ir OBJECT
   src/low_level_ir/stmt.cpp
   src/low_level_ir/ll_expr_visitor.cpp
   src/low_level_ir/ll_expr_mutator.cpp
+  src/lowering/op_lowering_rules.cpp
+  src/lowering/lowering.cpp
   src/pass/pass_manager.cpp
+  src/pass/analysis/type_inference.cpp
   src/pass/opt/constant_folding.cpp
   src/pass/opt/dead_code_elimination.cpp
   src/pass/opt/operator_fusion.cpp
